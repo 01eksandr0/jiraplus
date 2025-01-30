@@ -2,9 +2,9 @@
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import Input from "@/components/UI/Input";
 import { useForm, SubmitHandler } from "react-hook-form";
-import Button from "@/components/UI/Button";
+// @ts-ignore
+import { Button, Input } from "jiraplus-ui";
 import axios from "axios";
 
 type Inputs = {

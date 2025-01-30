@@ -1,35 +1,35 @@
 "use client";
 
 import React, { useState } from "react";
-import { signIn } from "next-auth/react";
-import { useRouter } from "next/navigation";
-import Input from "@/components/UI/Input";
 import { useForm, SubmitHandler } from "react-hook-form";
-import Button from "@/components/UI/Button";
+import axios from "axios";
+import { useAuthStore } from "@/stores/auth";
+// @ts-ignore
+import { Button, Input } from "jiraplus-ui";
 
 type Inputs = {
   email: string;
   password: string;
 };
-
 const Page = () => {
-  const router = useRouter();
   const [resError, setResError] = useState("");
+  const setToken = useAuthStore((state) => state.setToken);
+
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm<Inputs>();
-  const onSubmit: SubmitHandler<Inputs> = async (data) => {
-    const result = await signIn("credentials", {
-      redirect: false,
-      ...data,
-    });
 
-    if (!result?.error) {
-      router.replace("/");
-    } else {
-      setResError("Invalid email or password");
+  const onSubmit: SubmitHandler<Inputs> = async (formData) => {
+    try {
+      const { data } = await axios.post(
+        process.env.NEXT_PUBLIC_API_URL + "/api/auth/login",
+        formData
+      );
+      if (data?.token) setToken(data.token);
+    } catch (error) {
+      console.log(error);
     }
   };
 
@@ -60,7 +60,13 @@ const Page = () => {
           />
         </label>
 
-        <Button type="submit" onClick={() => setResError("")}>
+        <Button
+          className={
+            "py-3 px-4 inline-flex justify-center items-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent bg-emerald-600 text-white hover:bg-emerald-700  focus:outline-none duration-300"
+          }
+          type="submit"
+          onClick={() => setResError("")}
+        >
           Sign in
         </Button>
       </form>

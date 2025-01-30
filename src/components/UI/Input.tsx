@@ -1,4 +1,4 @@
-import React, { forwardRef, InputHTMLAttributes } from "react";
+import { forwardRef, InputHTMLAttributes } from "react";
 
 interface IProps extends InputHTMLAttributes<HTMLInputElement> {
   type: string;
@@ -6,7 +6,7 @@ interface IProps extends InputHTMLAttributes<HTMLInputElement> {
   error?: string;
 }
 
-const Input = forwardRef<HTMLInputElement, IProps>(function Input(
+export const Input = forwardRef<HTMLInputElement, IProps>(function Input(
   { type, placeholder, error, className, ...props },
   ref
 ) {
@@ -29,5 +29,3 @@ const Input = forwardRef<HTMLInputElement, IProps>(function Input(
     </div>
   );
 });
-
-export default Input;
