@@ -1,12 +1,12 @@
 import { useAuthStore } from "@/stores/auth";
 import axios from "axios";
 import React, { useEffect, useState, useRef } from "react";
-// @ts-ignore
-import { Input } from "jiraplus-ui";
+import { Input } from "../UI/Input";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { Dialog } from "../UI/Dialog";
-import SearchSelect from "../UI/SearchSelect";
-import { IUser } from "@/types/user";
+import SearchSelect from "./header/SearchSelect";
+import { useUserStore } from "@/stores/user";
+import { IProject } from "@/types/project";
 
 type Inputs = {
   name: string;
@@ -14,15 +14,17 @@ type Inputs = {
 
 const HeaderProjectsDropdown = () => {
   const token = useAuthStore((s) => s.token);
-  const [projects, setProjects] = useState([]);
+  const user = useUserStore((s) => s.user);
+  const [projects, setProjects] = useState<IProject[]>([]);
   const [isVisible, setVisible] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
-  const [users, setUsers] = useState<IUser[]>([]);
+  const [users, setUsers] = useState<string[]>([]);
 
   const {
     register,
     handleSubmit,
     formState: { errors },
+    reset,
   } = useForm<Inputs>();
 
   const fetchProjects = async () => {
@@ -30,6 +32,9 @@ const HeaderProjectsDropdown = () => {
       const { data } = await axios.get(
         process.env.NEXT_PUBLIC_API_URL + "/api/projects",
         {
+          params: {
+            userId: user?._id,
+          },
           headers: {
             Authorization: "Bearer " + token,
           },
@@ -47,6 +52,21 @@ const HeaderProjectsDropdown = () => {
 
   const createProject: SubmitHandler<Inputs> = async (formData) => {
     try {
+      await axios.post(
+        process.env.NEXT_PUBLIC_API_URL + "/api/projects",
+        {
+          ...formData,
+          users,
+        },
+        {
+          headers: {
+            Authorization: "Bearer " + token,
+          },
+        }
+      );
+      fetchProjects();
+      setVisible(false);
+      reset();
     } catch (error) {
       console.error(error);
     }
@@ -62,9 +82,29 @@ const HeaderProjectsDropdown = () => {
     <>
       <div className="w-[300px]">
         <div className="max-h-[300px]">
-          <p className="h-[50px] flex justify-center items-center">
-            You don't have projects
-          </p>
+          {projects?.length ? (
+            <div>
+              <h2 className="border-b justify-center h-[40px] flex items-center font-medium">
+                Your projects
+              </h2>
+              <ul className="p-[10px] max-h-[300px] overflow-auto">
+                {projects.map((i) => (
+                  <li key={i._id}>
+                    <button
+                      type="button"
+                      className="px-[6px] py-[2px] block w-full  rounded-md hover:bg-gray-100 duration-300 text-start"
+                    >
+                      {i?.name}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ) : (
+            <p className="h-[50px] flex justify-center items-center">
+              You don't have projects
+            </p>
+          )}
         </div>
         <button
           onClick={() => setVisible(true)}
@@ -94,13 +134,8 @@ const HeaderProjectsDropdown = () => {
             </label>
             <label>
               Users
-              <SearchSelect />
+              <SearchSelect setUsers={setUsers} />
             </label>
-            <ul className="flex flex-wrap gap-[4px]">
-              {users.map((i) => (
-                <li></li>
-              ))}
-            </ul>
           </form>
           {/* Footer */}
           <div className="flex justify-end p-[20px] gap-[10px] border-t w-full">

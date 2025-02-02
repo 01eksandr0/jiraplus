@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/stores/auth";
 import HeaderUserDropdown from "./HeaderUserDropdown";
 // @ts-ignore
-import { Popover } from "jiraplus-ui";
+import { Popover } from "../../UI/Popover";
 import HeaderProjectsDropdown from "../HeaderProjectsDropdown";
 
 const Header = () => {
