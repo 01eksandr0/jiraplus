@@ -7,6 +7,7 @@ import { Dialog } from "../UI/Dialog";
 import SearchSelect from "./header/SearchSelect";
 import { useUserStore } from "@/stores/user";
 import { IProject } from "@/types/project";
+import Link from "next/link";
 
 type Inputs = {
   name: string;
@@ -90,12 +91,12 @@ const HeaderProjectsDropdown = () => {
               <ul className="p-[10px] max-h-[300px] overflow-auto">
                 {projects.map((i) => (
                   <li key={i._id}>
-                    <button
-                      type="button"
+                    <Link
+                      href={`/projects/${i._id}`}
                       className="px-[6px] py-[2px] block w-full  rounded-md hover:bg-gray-100 duration-300 text-start"
                     >
                       {i?.name}
-                    </button>
+                    </Link>
                   </li>
                 ))}
               </ul>
